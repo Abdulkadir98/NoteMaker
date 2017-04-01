@@ -23,12 +23,17 @@ public class NoteDbHelper extends SQLiteOpenHelper {
         String SQL_CREATE_ENTRIES = "CREATE TABLE " + NotesContract.NotesEntry.TABLE_NAME + " ("  +
                 NotesContract.NotesEntry.COLUMN_ID + " " + " INTEGER PRIMARY KEY AUTOINCREMENT " + COMMA_SEP +
                 NotesContract.NotesEntry.COLUMN_NOTE_TITLE + TEXT_TYPE + COMMA_SEP + NotesContract.NotesEntry.COLUMN_NOTE +
+                TEXT_TYPE + NotesContract.NotesEntry.COLUMN_NOTE_URL + TEXT_TYPE +
                 " )";
         db.execSQL(SQL_CREATE_ENTRIES);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+//        if(oldVersion!=newVersion){
+//            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+ NotesContract.NotesEntry.TABLE_NAME);
+//
+//        }
 
     }
 }

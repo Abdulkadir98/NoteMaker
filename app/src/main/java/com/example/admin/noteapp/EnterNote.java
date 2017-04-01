@@ -6,23 +6,37 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.admin.noteapp.data.NotesContract;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class EnterNote extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private EditText mEnterNote;
     private EditText mEnterNoteTitle;
-    private Uri mUri;
+    private ImageView imageView;
+    private Uri mUri, mImageUri;
+    static final int IMAGE_CAPTURE = 101;
+    private String mCurrentPhotoPath;
+    private static final String TAG = EnterNote.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,12 +45,21 @@ public class EnterNote extends AppCompatActivity implements LoaderManager.Loader
          mUri = intent.getData();
         if (mUri == null){
             setTitle("Add a note");
+
         }
         else{
             setTitle("Edit note");
             getLoaderManager().initLoader(1,null,this);
+//            imageView = (ImageView)findViewById(R.id.note_image);
+//
+//                String projection[] = {NotesContract.NotesEntry.COLUMN_NOTE_URL};
+//                Cursor cursor = getContentResolver().query(mUri, projection,null,null,null);
+//                mImageUri = Uri.parse(cursor.getString(cursor.getColumnIndexOrThrow(NotesContract.NotesEntry.COLUMN_NOTE_URL)));
+//                Picasso.with(getApplicationContext()).load(mImageUri).into(imageView);
 
         }
+
+
 
     }
     private void saveNote(){
@@ -47,6 +70,7 @@ String noteTitleString = mEnterNoteTitle.getText().toString();
         ContentValues values = new ContentValues();
         values.put(NotesContract.NotesEntry.COLUMN_NOTE_TITLE,noteTitleString);
         values.put(NotesContract.NotesEntry.COLUMN_NOTE,noteString);
+//        values.put(NotesContract.NotesEntry.COLUMN_NOTE_URL,String.valueOf(mImageUri));
 
         if(mUri == null) {
             mUri = getContentResolver().insert(NotesContract.NotesEntry.CONTENT_URI, values);
@@ -92,10 +116,14 @@ String noteTitleString = mEnterNoteTitle.getText().toString();
 
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
+            case R.id.action_take_image:
+                if(hasCamera()){
+                    saveImage();
+                }
             case android.R.id.home:
                 // Navigate back to parent activity (CatalogActivity)
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+//                NavUtils.navigateUpFromSameTask(this);
+//                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -166,5 +194,87 @@ String noteTitleString = mEnterNoteTitle.getText().toString();
             Toast.makeText(this,"Note deleted successfully",Toast.LENGTH_SHORT).show();
         }
 
+    }
+    private boolean hasCamera(){
+        if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    private void saveImage() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+             //Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                ex.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = Uri.fromFile(photoFile);
+                Log.i(TAG, "Image saved at "+ photoURI);
+                mImageUri = photoURI;
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG, "it's getting called");
+        if(requestCode == IMAGE_CAPTURE && data!=null){
+            if (resultCode == RESULT_OK){
+                Toast.makeText(this, "Image saved at "+ mImageUri, Toast.LENGTH_LONG).show();
+//                Picasso.with(getApplicationContext()).load(mCurrentPhotoPath).into(imageView);
+
+            }
+            else if(resultCode == RESULT_CANCELED){
+                Toast.makeText(this, "Failed to save image", Toast.LENGTH_LONG).show();
+            }
+            else {
+                Toast.makeText(this, "Error in saving image", Toast.LENGTH_LONG).show();
+
+            }
+        }
+    }
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString("photopath", mCurrentPhotoPath);
+
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("photopath")) {
+                mCurrentPhotoPath = savedInstanceState.getString("photopath");
+            }
+        }
+        super.onRestoreInstanceState(savedInstanceState);
     }
 }

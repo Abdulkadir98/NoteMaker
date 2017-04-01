@@ -106,12 +106,16 @@ public class NotesProvider extends ContentProvider {
 
         String noteTitle = contentValues.getAsString(NotesContract.NotesEntry.COLUMN_NOTE_TITLE);
         String note = contentValues.getAsString(NotesContract.NotesEntry.COLUMN_NOTE);
+        //String noteUrl = contentValues.getAsString(NotesContract.NotesEntry.COLUMN_NOTE_URL);
         if(noteTitle == null){
             throw new IllegalArgumentException("Note needs a title");
         }
         if (note == null){
             throw new IllegalArgumentException("Enter something in the note");
         }
+//        if(noteUrl == null){
+//            throw new IllegalArgumentException("File not found");
+//        }
 
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         long rowID = database.insert(NotesContract.NotesEntry.TABLE_NAME, null, contentValues);

@@ -25,7 +25,6 @@ public class AddANote extends AppCompatActivity implements LoaderManager.LoaderC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_anote);
-
         FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,6 +37,8 @@ public class AddANote extends AppCompatActivity implements LoaderManager.LoaderC
         getLoaderManager().initLoader(1, null, this);
         mAdapter = new NoteCursorAdapter(this,null);
         ListView listView = (ListView)findViewById(R.id.list);
+        View emptyView = findViewById(R.id.empty_view);
+        listView.setEmptyView(emptyView);
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

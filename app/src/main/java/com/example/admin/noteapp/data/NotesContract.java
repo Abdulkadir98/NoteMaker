@@ -28,6 +28,8 @@ public final class NotesContract {
      public static final String COLUMN_ID = BaseColumns._ID;
      public static final String COLUMN_NOTE_TITLE = "Title";
      public static final String COLUMN_NOTE = "Note";
+     public static final String COLUMN_NOTE_URL = "Url";
+
  }
 
 }
