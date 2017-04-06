@@ -20,10 +20,10 @@ public class NoteDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         final String TEXT_TYPE = " TEXT";
         final String COMMA_SEP = ",";
-        String SQL_CREATE_ENTRIES = "CREATE TABLE " + NotesContract.NotesEntry.TABLE_NAME + " ("  +
+        String SQL_CREATE_ENTRIES = "CREATE TABLE IF NOT EXISTS " + NotesContract.NotesEntry.TABLE_NAME + " ("  +
                 NotesContract.NotesEntry.COLUMN_ID + " " + " INTEGER PRIMARY KEY AUTOINCREMENT " + COMMA_SEP +
                 NotesContract.NotesEntry.COLUMN_NOTE_TITLE + TEXT_TYPE + COMMA_SEP + NotesContract.NotesEntry.COLUMN_NOTE +
-                TEXT_TYPE + NotesContract.NotesEntry.COLUMN_NOTE_URL + TEXT_TYPE +
+                TEXT_TYPE + COMMA_SEP + NotesContract.NotesEntry.COLUMN_NOTE_URL + TEXT_TYPE +
                 " )";
         db.execSQL(SQL_CREATE_ENTRIES);
     }

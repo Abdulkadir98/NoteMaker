@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.admin.noteapp.data.NotesContract;
 
 import java.io.File;
@@ -70,7 +71,9 @@ String noteTitleString = mEnterNoteTitle.getText().toString();
         ContentValues values = new ContentValues();
         values.put(NotesContract.NotesEntry.COLUMN_NOTE_TITLE,noteTitleString);
         values.put(NotesContract.NotesEntry.COLUMN_NOTE,noteString);
-//        values.put(NotesContract.NotesEntry.COLUMN_NOTE_URL,String.valueOf(mImageUri));
+        if(mCurrentPhotoPath!=null) {
+            values.put(NotesContract.NotesEntry.COLUMN_NOTE_URL, mCurrentPhotoPath);
+        }
 
         if(mUri == null) {
             mUri = getContentResolver().insert(NotesContract.NotesEntry.CONTENT_URI, values);
@@ -82,6 +85,7 @@ String noteTitleString = mEnterNoteTitle.getText().toString();
             }
         }
         else{
+//            values.put(NotesContract.NotesEntry.COLUMN_NOTE_URL, String.valueOf(mImageUri));
             int rowsUpdated = getContentResolver().update(mUri, values, null,null);
             if (rowsUpdated == 0){
                 Toast.makeText(this,"Error in updating note", Toast.LENGTH_SHORT).show();
@@ -131,7 +135,7 @@ String noteTitleString = mEnterNoteTitle.getText().toString();
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String[] Projection = {NotesContract.NotesEntry.COLUMN_ID, NotesContract.NotesEntry.COLUMN_NOTE_TITLE,
-                NotesContract.NotesEntry.COLUMN_NOTE};
+                NotesContract.NotesEntry.COLUMN_NOTE, NotesContract.NotesEntry.COLUMN_NOTE_URL};
         return new CursorLoader(getApplicationContext(), mUri, Projection, null, null, null);
     }
 
@@ -142,9 +146,15 @@ String noteTitleString = mEnterNoteTitle.getText().toString();
             String note = cursor.getString(cursor.getColumnIndexOrThrow(NotesContract.NotesEntry.COLUMN_NOTE));
             mEnterNoteTitle = (EditText) findViewById(R.id.enter_note_title);
             mEnterNote = (EditText) findViewById(R.id.enter_note);
-
+            imageView = (ImageView)findViewById(R.id.note_image);
             mEnterNoteTitle.setText(noteTitle);
             mEnterNote.setText(note);
+            String photoUri = cursor.getString(cursor.getColumnIndex(NotesContract.NotesEntry.COLUMN_NOTE_URL));
+            if(photoUri!=null) {
+                mImageUri = Uri.parse(photoUri);
+                Glide.with(this).load(photoUri).into(imageView);
+            }
+
         }
     }
 
@@ -233,6 +243,9 @@ String noteTitleString = mEnterNoteTitle.getText().toString();
             if (resultCode == RESULT_OK){
                 Toast.makeText(this, "Image saved at "+ mImageUri, Toast.LENGTH_LONG).show();
 //                Picasso.with(getApplicationContext()).load(mCurrentPhotoPath).into(imageView);
+                imageView = (ImageView)findViewById(R.id.note_image);
+                Glide.with(this).load(mCurrentPhotoPath).into(imageView);
+
 
             }
             else if(resultCode == RESULT_CANCELED){

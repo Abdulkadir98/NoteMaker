@@ -16,6 +16,7 @@ import android.widget.ListView;
 
 import com.example.admin.noteapp.data.NoteDbHelper;
 import com.example.admin.noteapp.data.NotesContract;
+import com.facebook.stetho.Stetho;
 
 public class AddANote extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private NoteDbHelper mDbHelper;
@@ -25,6 +26,7 @@ public class AddANote extends AppCompatActivity implements LoaderManager.LoaderC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_anote);
+        Stetho.initializeWithDefaults(this);
         FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
