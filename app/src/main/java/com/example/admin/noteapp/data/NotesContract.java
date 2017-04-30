@@ -12,6 +12,8 @@ public final class NotesContract {
     private NotesContract(){}
     public static final String CONTENT_AUTHORITY = "com.example.admin.noteapp";
     public static final String PATH_NOTES = "notes";
+    public static final String PATH_IMAGES = "images";
+
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
  public static class NotesEntry implements BaseColumns{
@@ -25,10 +27,24 @@ public final class NotesContract {
              ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_NOTES;
      public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_NOTES);
      public static final String TABLE_NAME = "Notes";
+
+     //Colummns for Notes Table
+
      public static final String COLUMN_ID = BaseColumns._ID;
      public static final String COLUMN_NOTE_TITLE = "Title";
      public static final String COLUMN_NOTE = "Note";
      public static final String COLUMN_NOTE_URL = "Url";
+
+ }
+ public static class ImagesEntry implements BaseColumns{
+
+     public static final Uri CONTENT_URI_IMAGES = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_IMAGES);
+
+     //Columns for Images table
+     public static final String TABLE_NAME = "Images";
+     public static final String COLUMN_ID = BaseColumns._ID;
+     public static final String COLUMN_IMAGE_URL = "Url";
+     public static final String COLUMN_IMAGE_ID = "IMAGE_Id";
 
  }
 

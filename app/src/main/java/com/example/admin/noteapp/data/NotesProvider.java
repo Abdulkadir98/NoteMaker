@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import static com.example.admin.noteapp.data.NotesContract.CONTENT_AUTHORITY;
+import static com.example.admin.noteapp.data.NotesContract.PATH_IMAGES;
 import static com.example.admin.noteapp.data.NotesContract.PATH_NOTES;
 
 /**
@@ -20,12 +21,20 @@ public class NotesProvider extends ContentProvider {
 
     private static final int NOTES = 100;
     private static final int NOTES_ID = 101;
+    private static final int IMAGES = 103;
+    private static final int IMAGES_ID = 104;
+
+
     private NoteDbHelper mDbHelper;
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
         sUriMatcher.addURI(CONTENT_AUTHORITY, PATH_NOTES, NOTES);
         sUriMatcher.addURI(CONTENT_AUTHORITY, PATH_NOTES + "/#", NOTES_ID);
+        sUriMatcher.addURI(CONTENT_AUTHORITY, PATH_IMAGES, IMAGES);
+        sUriMatcher.addURI(CONTENT_AUTHORITY, PATH_IMAGES + "/#", IMAGES_ID);
+
+
     }
     @Override
     public boolean onCreate() {
@@ -68,6 +77,9 @@ public class NotesProvider extends ContentProvider {
                 // Cursor containing that row of the table.
                 cursor = database.query(NotesContract.NotesEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
+//                cursor = database.rawQuery("SELECT * FROM "+ NotesContract.NotesEntry.TABLE_NAME +
+//                        "," + NotesContract.ImagesEntry.TABLE_NAME + " WHERE "+
+//                        NotesContract.NotesEntry.COLUMN_ID+ "=?",selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
@@ -98,6 +110,8 @@ public class NotesProvider extends ContentProvider {
         switch (match){
             case NOTES:
                 return insertNote(uri, contentValues);
+            case IMAGES:
+                return insertImage(uri, contentValues);
             default:
                 throw new IllegalArgumentException("Error in insertion" + uri);
         }
@@ -118,6 +132,17 @@ public class NotesProvider extends ContentProvider {
         long rowID = database.insert(NotesContract.NotesEntry.TABLE_NAME, null, contentValues);
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(uri, rowID);
+    }
+    private Uri insertImage(Uri uri, ContentValues values){
+        String imageUrl = values.getAsString(NotesContract.ImagesEntry.COLUMN_IMAGE_URL);
+        if(imageUrl==null){
+
+        }
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        long rowId = database.insert(NotesContract.ImagesEntry.TABLE_NAME, null,values);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return ContentUris.withAppendedId(uri,rowId);
+
     }
 
     @Override
